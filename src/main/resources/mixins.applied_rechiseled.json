@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "space.miaoning.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "applied_rechiseled.refmap.json",
+  "mixins": [],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
