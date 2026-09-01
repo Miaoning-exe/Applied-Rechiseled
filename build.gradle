@@ -136,6 +136,7 @@ tasks.named('processResources', ProcessResources).configure {
             guideme_version: guideme_version,
             jei_version: jei_version,
             rechiseled_file: rechiseled_file,
+            rechiseled_version_range: rechiseled_version_range,
             fusion_version: fusion_version
     ]
     inputs.properties replaceProperties
