@@ -18,23 +18,12 @@ println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty '
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
 
-    // This property allows configuring Gradle's ProcessResources task(s) to run on IDE output locations before launching the game.
-    // It is REQUIRED to be set to true for this template to function.
-    // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
+    // Usually, you need to enable this property when you are replacing values in files like the mods.toml.
     copyIdeResources = true
 
-    // This property enables access transformers for use in development.
-    // They will be applied to the Minecraft artifact.
-    // The access transformer file can be anywhere in the project.
-    // However, it must be at "META-INF/accesstransformer.cfg" in the final mod jar to be loaded by Forge.
-    // This default location is a best practice to automatically put the file in the right place in the final jar.
-    // See https://docs.minecraftforge.net/en/latest/advanced/accesstransformers/ for more information.
-     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
     runs {
-        // applies to all the run configs below
         configureEach {
             workingDirectory project.file('run')
 
@@ -103,6 +92,13 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name "Modrinth"
+        url "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
@@ -114,6 +110,10 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+    implementation fg.deobf("curse.maven:rechiseled-558998:${rechiseled_file}")
+    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:7521769")
+    implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:4715408")
+    implementation fg.deobf("maven.modrinth:fusion-connected-textures:${fusion_version}-forge-mc${minecraft_version}")
 }
 
 tasks.named('processResources', ProcessResources).configure {
@@ -135,6 +135,8 @@ tasks.named('processResources', ProcessResources).configure {
             ae2_version_range: ae2_version_range,
             guideme_version: guideme_version,
             jei_version: jei_version,
+            rechiseled_file: rechiseled_file,
+            fusion_version: fusion_version
     ]
     inputs.properties replaceProperties
 
