@@ -28,36 +28,29 @@ import java.util.List;
 public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICraftingProvider, IGridTickable, InternalInventoryHost {
     private final List<IPatternDetails> patterns = new ArrayList<>();
     private final IManagedGridNode mainNode = this.getMainNode();
-    private final AppEngInternalInventory chiselRecipeSlot = new AppEngInternalInventory(this, 1, 1);
+    private final AppEngInternalInventory templateSlot = new AppEngInternalInventory(this, 1, 1);
 
 
     public AEChiselBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.AE_CHISEL.get(), pos, state);
 
-        mainNode.setFlags(GridFlags.REQUIRE_CHANNEL)
+        this.mainNode.setFlags(GridFlags.REQUIRE_CHANNEL)
                 .setIdlePowerUsage(10.0)
                 .setVisualRepresentation(AEItemKey.of(ModItems.AE_CHISEL.get()))
                 .addService(ICraftingProvider.class, this)
                 .addService(IGridTickable.class, this);
+        this.rebuildPatterns();
     }
 
 
     private void rebuildPatterns() {
-//        this.patterns.clear();
-//
-//        ItemStack stack = this.chiselRecipeSlot.getStackInSlot(0);
-//        if (!stack.isEmpty()) {
-//            var registry = CarvingUtils.getChiselRegistry();
-//            if (registry != null) {
-//                var input = GenericStack.fromItemStack(stack);
-//                if (!ChiselPatternDetails.addChiselPatterns(input, registry.getItemsForChiseling(stack), this.patterns, this.parallel)) {
-//                    this.chiselRecipeSlot.setItemDirect(0, ItemStack.EMPTY);
-//                    return;
-//                }
-//            }
-//        }
-//
-//        this.postPatternChange();
+        this.patterns.clear();
+
+        ItemStack templateItemStack = this.templateSlot.getStackInSlot(0);
+
+        if (!templateItemStack.isEmpty()) {
+
+        }
     }
 
     @Override
@@ -74,30 +67,6 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
     @Override
     public List<IPatternDetails> getAvailablePatterns() {
         return this.patterns;
-    }
-
-    @Override
-    public boolean pushPattern(IPatternDetails patternDetails, KeyCounter[] inputHolder) {
-        if (!this.mainNode.isActive() || !this.patterns.contains(patternDetails)) {
-            return false;
-        }
-
-
-    }
-
-    @Override
-    public boolean isBusy() {
-        return false;
-    }
-
-    @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return null;
-    }
-
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return null;
     }
 
 }

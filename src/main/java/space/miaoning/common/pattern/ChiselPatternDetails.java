@@ -2,40 +2,73 @@ package space.miaoning.common.pattern;
 
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.AEKey;
 import appeng.api.stacks.GenericStack;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
-import java.util.Collection;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class ChiselPatternDetails implements IPatternDetails {
+    private final AEItemKey definition;
+    private final IInput[] inputs;
+    private final GenericStack[] outputs;
+
+    public ChiselPatternDetails(AEItemKey definition,
+                                AEItemKey input,
+                                long inputAmount,
+                                AEItemKey output,
+                                long outputAmout
+    ) {
+        this.definition = definition;
+        this.inputs = new IInput[]{
+                new ChiselInput(new GenericStack(input, inputAmount))
+        };
+        this.outputs = new GenericStack[]{
+                new GenericStack(output, outputAmout)
+        };
+    }
+
     @Override
     public AEItemKey getDefinition() {
-        return null;
+        return this.definition;
     }
 
     @Override
     public IInput[] getInputs() {
-        return new IInput[0];
+        return this.inputs;
     }
 
     @Override
     public GenericStack[] getOutputs() {
-        return new GenericStack[0];
+        return this.outputs;
     }
 
-    public static boolean addChiselPatterns(@Nullable GenericStack input, @Nullable Collection<ItemStack> outputs, @NotNull Collection<ChiselPatternDetails> patterns, int parallel) {
-//        if (input == null) return false;
-//        if (outputs == null || outputs.isEmpty()) return false;
-//        boolean addedPattern = false;
-//        for (var itemStack : outputs) {
-//            var out = GenericStack.fromItemStack(itemStack);
-//            if (out != null && !input.equals(out)) {
-//                patterns.add(new ChiselPatternDetails(input.copy().setStackSize(parallel), out.setStackSize(parallel)));
-//                addedPattern = true;
-//            }
-//        }
-//        return addedPattern;
+    private static final class ChiselInput implements IInput {
+        private final GenericStack[] template;
+        private final long multiplier;
+
+        public ChiselInput(GenericStack stack) {
+            this.template = new GenericStack[] { new GenericStack(stack.what(), 1) };
+            this.multiplier = stack.amount();
+        }
+
+        @Override
+        public GenericStack[] getPossibleInputs() {
+            return template;
+        }
+
+        @Override
+        public long getMultiplier() {
+            return multiplier;
+        }
+
+        @Override
+        public boolean isValid(AEKey input, Level level) {
+            return input.matches(template[0]);
+        }
+
+        @Override
+        public @Nullable AEKey getRemainingKey(AEKey template) {
+            return null;
+        }
     }
 }
