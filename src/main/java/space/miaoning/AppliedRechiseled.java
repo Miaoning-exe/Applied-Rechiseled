@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+import space.miaoning.common.registry.ModBlockEntityTypes;
 import space.miaoning.common.registry.ModBlocks;
 import space.miaoning.common.registry.ModItems;
 
@@ -18,5 +19,6 @@ public final class AppliedRechiseled {
 
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        ModBlockEntityTypes.TILES.register(modEventBus);
     }
 }
