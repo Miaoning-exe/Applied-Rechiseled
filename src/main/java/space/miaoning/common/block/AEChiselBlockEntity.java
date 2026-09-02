@@ -3,30 +3,27 @@ package space.miaoning.common.block;
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.GridFlags;
-import appeng.api.networking.IGridNode;
 import appeng.api.networking.IManagedGridNode;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.ticking.IGridTickable;
-import appeng.api.networking.ticking.TickRateModulation;
-import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.stacks.AEItemKey;
-import appeng.api.stacks.GenericStack;
-import appeng.api.stacks.KeyCounter;
 import appeng.blockentity.grid.AENetworkBlockEntity;
 import appeng.util.inv.AppEngInternalInventory;
 import appeng.util.inv.InternalInventoryHost;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import space.miaoning.common.pattern.ChiselPatternDetails;
 import space.miaoning.common.registry.ModBlockEntityTypes;
 import space.miaoning.common.registry.ModItems;
+import space.miaoning.common.util.ChiselRecipeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICraftingProvider, IGridTickable, InternalInventoryHost {
-    private final List<IPatternDetails> patterns = new ArrayList<>();
+    private List<IPatternDetails> patterns = new ArrayList<>();
     private final IManagedGridNode mainNode = this.getMainNode();
     private final AppEngInternalInventory templateSlot = new AppEngInternalInventory(this, 1, 1);
 
@@ -48,9 +45,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
         ItemStack templateItemStack = this.templateSlot.getStackInSlot(0);
 
-        if (!templateItemStack.isEmpty()) {
-
-        }
+        this.patterns = ChiselRecipeResolver.getAllChiselPattern(level, templateItemStack);
     }
 
     @Override

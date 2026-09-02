@@ -42,6 +42,18 @@ public class ChiselPatternDetails implements IPatternDetails {
         return this.outputs;
     }
 
+    @Override
+    public int hashCode() {
+        return this.definition.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null
+                && obj.getClass() == getClass()
+                && this.definition.equals(((ChiselPatternDetails) obj).definition);
+    }
+
     private static final class ChiselInput implements IInput {
         private final GenericStack[] template;
         private final long multiplier;
