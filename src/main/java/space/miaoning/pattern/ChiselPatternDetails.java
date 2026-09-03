@@ -15,9 +15,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import space.miaoning.registry.ModItems;
 
-/**
- * An AE2 processing pattern whose definition stores one Rechiseled conversion.
- */
 public final class ChiselPatternDetails implements IPatternDetails {
     private static final String DEFINITION_TAG = "applied_rechiseled_pattern";
     private static final String INPUT_TAG = "input";

@@ -23,6 +23,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import space.miaoning.registry.ModBlockEntityTypes;
@@ -30,7 +31,10 @@ import space.miaoning.registry.ModItems;
 import space.miaoning.util.ChiselRecipeResolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICraftingProvider, IGridTickable, InternalInventoryHost {
     private List<IPatternDetails> patterns = new ArrayList<>();
@@ -42,6 +46,9 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
     private static final String NBT_TEMPLATE_SLOT = "template_slot";
     private static final String NBT_PENDING_OUTPUT_LIST = "pending_output_list";
+    private static final String NBT_PARALLEL = "parallel";
+    private static final Set<AEChiselBlockEntity> INSTANCES =
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public AEChiselBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.AE_CHISEL.get(), pos, state);
@@ -60,8 +67,49 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
     @Override
     public void onReady() {
+        registerInstance(this);
         updatePatterns();
         super.onReady();
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        unregisterInstance(this);
+        super.onChunkUnloaded();
+    }
+
+    @Override
+    public void setRemoved() {
+        unregisterInstance(this);
+        super.setRemoved();
+    }
+
+    public static void refreshAllPatterns() {
+        List<AEChiselBlockEntity> instances;
+        synchronized (INSTANCES) {
+            instances = List.copyOf(INSTANCES);
+        }
+
+        for (AEChiselBlockEntity instance : instances) {
+            if (!instance.isRemoved() && instance.level != null) {
+                instance.updatePatterns();
+                if (!instance.level.isClientSide()) {
+                    ICraftingProvider.requestUpdate(instance.mainNode);
+                }
+            }
+        }
+    }
+
+    private static void registerInstance(AEChiselBlockEntity instance) {
+        synchronized (INSTANCES) {
+            INSTANCES.add(instance);
+        }
+    }
+
+    private static void unregisterInstance(AEChiselBlockEntity instance) {
+        synchronized (INSTANCES) {
+            INSTANCES.remove(instance);
+        }
     }
 
     @Override
@@ -169,6 +217,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
     private void writeToNBT(CompoundTag data) {
         this.templateSlot.writeToNBT(data, NBT_TEMPLATE_SLOT);
+        data.putInt(NBT_PARALLEL, parallel);
         ListTag pendingOutputListTag = new ListTag();
         for (var output : pendingOutputList) {
             pendingOutputListTag.add(GenericStack.writeTag(output));
@@ -178,6 +227,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
     private void readFromNBT(CompoundTag data) {
         templateSlot.readFromNBT(data, NBT_TEMPLATE_SLOT);
+        parallel = Mth.clamp(data.getInt(NBT_PARALLEL), 1, ChiselRecipeResolver.MAX_PARALLEL);
         ListTag pendingOutputListTag = data.getList(NBT_PENDING_OUTPUT_LIST, Tag.TAG_COMPOUND);
         for (int i = 0; i < pendingOutputListTag.size(); ++i) {
             var stack = GenericStack.readTag(pendingOutputListTag.getCompound(i));
@@ -192,7 +242,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
     }
 
     public void setParallel(int parallel) {
-        int normalized = Math.max(1, parallel);
+        int normalized = Mth.clamp(parallel, 1, ChiselRecipeResolver.MAX_PARALLEL);
         if (this.parallel == normalized) {
             return;
         }
