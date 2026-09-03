@@ -11,6 +11,7 @@ import appeng.blockentity.grid.AENetworkBlockEntity;
 import appeng.util.inv.AppEngInternalInventory;
 import appeng.util.inv.InternalInventoryHost;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +27,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
     private List<IPatternDetails> patterns = new ArrayList<>();
     private final IManagedGridNode mainNode = this.getMainNode();
     private final AppEngInternalInventory templateSlot = new AppEngInternalInventory(this, 1, 1);
-
+    private static final String NBT_TEMPLATE_SLOT = "template_slot";
 
     public AEChiselBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.AE_CHISEL.get(), pos, state);
@@ -41,10 +42,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
 
     private void rebuildPatterns() {
-        this.patterns.clear();
-
         ItemStack templateItemStack = this.templateSlot.getStackInSlot(0);
-
         this.patterns = ChiselRecipeResolver.getAllChiselPattern(level, templateItemStack);
     }
 
@@ -63,5 +61,25 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
     public List<IPatternDetails> getAvailablePatterns() {
         return this.patterns;
     }
+
+    @Override
+    public void saveAdditional(CompoundTag data) {
+        super.saveAdditional(data);
+        templateSlot.writeToNBT(data, NBT_TEMPLATE_SLOT);
+    }
+
+    @Override
+    public void loadTag(CompoundTag data) {
+        super.loadTag(data);
+        templateSlot.readFromNBT(data, NBT_TEMPLATE_SLOT);
+    }
+
+    @Override
+    public void onReady() {
+        rebuildPatterns();
+        super.onReady();
+    }
+
+
 
 }

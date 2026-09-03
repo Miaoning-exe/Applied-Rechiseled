@@ -29,7 +29,6 @@ import java.util.Optional;
 public final class ChiselRecipeResolver {
     /**
      * Keep one generated pattern within a normal item-stack-sized input batch.
-     * Rechiseled's built-in worth values are 1 and 0.5, so this covers them.
      */
     private static final int MAX_PATTERN_INPUT = 64;
 
