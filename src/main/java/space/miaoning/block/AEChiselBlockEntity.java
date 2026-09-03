@@ -23,11 +23,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import space.miaoning.registry.ModBlockEntityTypes;
 import space.miaoning.registry.ModItems;
+import space.miaoning.menu.AEChiselMenu;
 import space.miaoning.util.ChiselRecipeResolver;
 
 import java.util.ArrayList;
@@ -36,7 +43,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICraftingProvider, IGridTickable, InternalInventoryHost {
+public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICraftingProvider, IGridTickable, InternalInventoryHost, MenuProvider {
+    public static final int MIN_PARALLEL = 1;
+    public static final int MAX_PARALLEL = ChiselRecipeResolver.MAX_PARALLEL;
+
     private List<IPatternDetails> patterns = new ArrayList<>();
     private final IManagedGridNode mainNode = this.getMainNode();
     private final AppEngInternalInventory templateSlot = new AppEngInternalInventory(this, 1, 1);
@@ -241,8 +251,20 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
         return parallel;
     }
 
+    public AppEngInternalInventory getTemplateSlot() {
+        return templateSlot;
+    }
+
+    public void setTemplate(ItemStack stack) {
+        ItemStack template = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
+        if (!template.isEmpty()) {
+            template.setCount(1);
+        }
+        templateSlot.setItemDirect(0, template);
+    }
+
     public void setParallel(int parallel) {
-        int normalized = Mth.clamp(parallel, 1, ChiselRecipeResolver.MAX_PARALLEL);
+        int normalized = Mth.clamp(parallel, MIN_PARALLEL, MAX_PARALLEL);
         if (this.parallel == normalized) {
             return;
         }
@@ -251,5 +273,15 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
         updatePatterns();
         ICraftingProvider.requestUpdate(mainNode);
         saveChanges();
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("block.applied_rechiseled.ae_chisel");
+    }
+
+    @Override
+    public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new AEChiselMenu(containerId, playerInventory, this);
     }
 }

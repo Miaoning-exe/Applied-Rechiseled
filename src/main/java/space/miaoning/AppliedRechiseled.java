@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import space.miaoning.registry.ModBlockEntityTypes;
 import space.miaoning.registry.ModBlocks;
 import space.miaoning.registry.ModItems;
+import space.miaoning.registry.ModMenus;
 import space.miaoning.util.ChiselPatternDecoder;
 
 @Mod(AppliedRechiseled.MODID)
@@ -22,6 +23,7 @@ public final class AppliedRechiseled {
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModBlockEntityTypes.TILES.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
 
         PatternDetailsHelper.registerDecoder(ChiselPatternDecoder.INSTANCE);
     }
