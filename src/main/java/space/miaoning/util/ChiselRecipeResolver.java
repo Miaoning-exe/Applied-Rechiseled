@@ -51,16 +51,16 @@ public final class ChiselRecipeResolver {
             }
         }
 
-        return patterns;
+        return List.copyOf(patterns);
     }
 
     private static void addPattern(List<IPatternDetails> patterns, ItemWithWorth input, ItemWithWorth output, int parallel) {
         ConversionResult result = convert(input, output);
         if (output != null && result != null) {
             int consumed = result.numberOfConversions();
-            int inputAmount = consumed * parallel;
             int converted = result.result();
-            int outputAmount = converted * parallel;
+            long inputAmount = (long) consumed * parallel;
+            long outputAmount = (long) converted * parallel;
 
             if (input.item() == output.item()) {
                 return ;
