@@ -1,4 +1,4 @@
-package space.miaoning.common.block;
+package space.miaoning.block;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;

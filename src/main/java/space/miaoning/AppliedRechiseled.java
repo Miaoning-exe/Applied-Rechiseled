@@ -6,10 +6,10 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-import space.miaoning.common.registry.ModBlockEntityTypes;
-import space.miaoning.common.registry.ModBlocks;
-import space.miaoning.common.registry.ModItems;
-import space.miaoning.common.util.ChiselPatternDecoder;
+import space.miaoning.registry.ModBlockEntityTypes;
+import space.miaoning.registry.ModBlocks;
+import space.miaoning.registry.ModItems;
+import space.miaoning.util.ChiselPatternDecoder;
 
 @Mod(AppliedRechiseled.MODID)
 public final class AppliedRechiseled {

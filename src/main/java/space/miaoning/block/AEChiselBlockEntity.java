@@ -1,4 +1,4 @@
-package space.miaoning.common.block;
+package space.miaoning.block;
 
 import appeng.api.config.Actionable;
 import appeng.api.crafting.IPatternDetails;
@@ -25,9 +25,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import space.miaoning.common.registry.ModBlockEntityTypes;
-import space.miaoning.common.registry.ModItems;
-import space.miaoning.common.util.ChiselRecipeResolver;
+import space.miaoning.registry.ModBlockEntityTypes;
+import space.miaoning.registry.ModItems;
+import space.miaoning.util.ChiselRecipeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
     private final AppEngInternalInventory templateSlot = new AppEngInternalInventory(this, 1, 1);
     private final List<GenericStack> pendingOutputList = new ArrayList<>();
     private final MachineSource actionSource = new MachineSource(this);
+    private int parallel = 1;
 
     private static final String NBT_TEMPLATE_SLOT = "template_slot";
     private static final String NBT_PENDING_OUTPUT_LIST = "pending_output_list";
@@ -54,7 +55,7 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
     private void updatePatterns() {
         ItemStack templateItemStack = this.templateSlot.getStackInSlot(0);
-        this.patterns = ChiselRecipeResolver.getAllChiselPattern(level, templateItemStack);
+        this.patterns = ChiselRecipeResolver.resolve(level, templateItemStack, parallel);
     }
 
     @Override
@@ -184,5 +185,21 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
                 this.addToPendingOutputList(stack.what(), stack.amount());
             }
         }
+    }
+
+    public int getParallel() {
+        return parallel;
+    }
+
+    public void setParallel(int parallel) {
+        int normalized = Math.max(1, parallel);
+        if (this.parallel == normalized) {
+            return;
+        }
+
+        this.parallel = normalized;
+        updatePatterns();
+        ICraftingProvider.requestUpdate(mainNode);
+        saveChanges();
     }
 }

@@ -1,4 +1,4 @@
-package space.miaoning.common.registry;
+package space.miaoning.registry;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
