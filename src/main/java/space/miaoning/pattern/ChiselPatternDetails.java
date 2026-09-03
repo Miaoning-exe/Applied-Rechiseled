@@ -5,13 +5,13 @@ import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.GenericStack;
 import java.util.Objects;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 import space.miaoning.registry.ModItems;
 
@@ -114,7 +114,7 @@ public final class ChiselPatternDetails implements IPatternDetails {
     }
 
     private static String itemId(Item item) {
-        return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item), "Unregistered item").toString();
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item), "Unregistered item").toString();
     }
 
     @Nullable
@@ -124,7 +124,7 @@ public final class ChiselPatternDetails implements IPatternDetails {
         }
 
         try {
-            return BuiltInRegistries.ITEM.getOptional(new ResourceLocation(data.getString(key))).orElse(null);
+            return ForgeRegistries.ITEMS.getValue(new ResourceLocation(data.getString(key)));
         } catch (RuntimeException ignored) {
             return null;
         }
