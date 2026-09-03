@@ -1,5 +1,6 @@
 package space.miaoning.common.block;
 
+import appeng.api.config.Actionable;
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.GridFlags;
@@ -15,6 +16,7 @@ import appeng.api.stacks.GenericStack;
 import appeng.api.stacks.KeyCounter;
 import appeng.blockentity.grid.AENetworkBlockEntity;
 import appeng.core.settings.TickRates;
+import appeng.me.helpers.MachineSource;
 import appeng.util.inv.AppEngInternalInventory;
 import appeng.util.inv.InternalInventoryHost;
 import net.minecraft.core.BlockPos;
@@ -35,6 +37,8 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
     private final IManagedGridNode mainNode = this.getMainNode();
     private final AppEngInternalInventory templateSlot = new AppEngInternalInventory(this, 1, 1);
     private final List<GenericStack> pendingOutputList = new ArrayList<>();
+    private final MachineSource actionSource = new MachineSource(this);
+
     private static final String NBT_TEMPLATE_SLOT = "template_slot";
     private static final String NBT_PENDING_OUTPUT_LIST = "pending_output_list";
 
@@ -94,8 +98,10 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
         }
 
         GenericStack output = patternDetails.getPrimaryOutput();
-        addToPendingOutputList(output.what(), output.amount());
 
+        // Here the pendingOutputList always has only one element, even though it's a list.
+        addToPendingOutputList(output.what(), output.amount());
+        this.saveChanges();
         return true;
     }
 
@@ -119,7 +125,44 @@ public class AEChiselBlockEntity extends AENetworkBlockEntity implements ICrafti
 
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return null;
+        if (!this.mainNode.isActive()) {
+            return TickRateModulation.SLEEP;
+        }
+
+        var storage = node.getGrid().getStorageService().getInventory();
+        boolean didSomething = false;
+
+        for (var iterator = this.pendingOutputList.listIterator(); iterator.hasNext();) {
+            var pendingOutput = iterator.next();
+
+            long inserted = storage.insert(
+                    pendingOutput.what(),
+                    pendingOutput.amount(),
+                    Actionable.MODULATE,
+                    this.actionSource);
+
+            if (inserted >= pendingOutput.amount()) {
+                iterator.remove();
+                didSomething = true;
+            } else if (inserted > 0) {
+                iterator.set(new GenericStack(
+                        pendingOutput.what(),
+                        pendingOutput.amount() - inserted));
+                didSomething = true;
+            }
+        }
+
+        if (didSomething) {
+            this.saveChanges();
+        }
+
+        if (this.pendingOutputList.isEmpty()) {
+            return TickRateModulation.SLEEP;
+        }
+
+        return didSomething
+                ? TickRateModulation.URGENT
+                : TickRateModulation.SLOWER;
     }
 
 
