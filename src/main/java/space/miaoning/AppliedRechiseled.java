@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import space.miaoning.common.registry.ModBlockEntityTypes;
 import space.miaoning.common.registry.ModBlocks;
 import space.miaoning.common.registry.ModItems;
-import space.miaoning.common.pattern.ChiselPatternDecoder;
+import space.miaoning.common.util.ChiselPatternDecoder;
 
 @Mod(AppliedRechiseled.MODID)
 public final class AppliedRechiseled {

@@ -1,4 +1,4 @@
-package space.miaoning.common.pattern;
+package space.miaoning.common.util;
 
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.crafting.IPatternDetailsDecoder;
@@ -6,8 +6,8 @@ import appeng.api.stacks.AEItemKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import space.miaoning.common.pattern.ChiselPatternDetails;
 import space.miaoning.common.registry.ModItems;
-import space.miaoning.common.util.ChiselRecipeResolver;
 
 /**
  * Restores a ChiselPatternDetails from the definition persisted by AE2.
