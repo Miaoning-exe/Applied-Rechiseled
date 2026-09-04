@@ -4,7 +4,7 @@ by miaoning
 
 ![image](https://media.forgecdn.net/attachments/description/null/description_a54576cd-9262-49db-aae1-27358c2cbebd.png)
 
-This mod is a 1.20.1 proting of [Applied Chisel](https://github.com/Circulate233/AppliedChisel) by [Circulation_](https://github.com/Circulate233)
+This mod is a 1.20.1 porting of [Applied Chisel](https://github.com/Circulate233/AppliedChisel) by [Circulation_](https://github.com/Circulate233)
 
 This mod adds a block: Intelligent Chisel Device. As shown in the picture, marked items will provide patterns to ME network and can be automatically chiseled.
 
