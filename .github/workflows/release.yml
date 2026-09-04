@@ -1,0 +1,67 @@
+name: Release mod
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (for example, 1.0.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Validate publishing configuration
+        env:
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: |
+          test -n "$MODRINTH_PROJECT_ID" || { echo "Missing MODRINTH_PROJECT_ID repository variable"; exit 1; }
+          test -n "$MODRINTH_TOKEN" || { echo "Missing MODRINTH_TOKEN repository secret"; exit 1; }
+          test -n "$CURSEFORGE_PROJECT_ID" || { echo "Missing CURSEFORGE_PROJECT_ID repository variable"; exit 1; }
+          test -n "$CURSEFORGE_TOKEN" || { echo "Missing CURSEFORGE_TOKEN repository secret"; exit 1; }
+
+      - name: Build mod
+        run: ./gradlew --no-daemon -Pnet.minecraftforge.gradle.disableUpdateChecker=true build
+
+      - name: Publish to CurseForge and Modrinth
+        uses: Kira-NT/mc-publish@v3.3.1
+        with:
+          files: build/libs/*.jar
+
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-tag: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          version: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          loaders: forge
+          game-versions: 1.20.1
+          environment: client | server
