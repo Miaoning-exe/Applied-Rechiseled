@@ -31,7 +31,7 @@ public final class AEChiselMenu extends AbstractContainerMenu {
         this.chisel = chisel;
         this.syncedParallel = chisel.getParallel();
 
-        addSlot(new TemplateSlot(chisel.getTemplateSlot(), 0, 80, 35));
+        addSlot(new TemplateSlot(chisel.getTemplateSlot(), 0, 80, 37));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
